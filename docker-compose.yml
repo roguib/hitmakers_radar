@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  hitmakers_radar:
+    build: .
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    links:
+        - mongo
+    ports:
+      - 3000:3000
+      - 9229:9229
+    command: npm start
+  mongo:
+    container_name: mongo_hitmakers_radar
+    image: mongo
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "27017:27017"
