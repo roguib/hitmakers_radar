@@ -13,7 +13,7 @@ services:
       - 9229:9229
     command: npm start
   mongo:
-    container_name: mongo_hitmakers_radar
+    container_name: mongo_db
     image: mongo
     volumes:
       - ./data:/data/db

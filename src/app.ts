@@ -1,6 +1,7 @@
 import express = require('express');
 import { CONFIG_OPTIONS } from './config/environment.config';
 import { Mention } from './interface/mention.interface';
+import { TweetGateway } from './gateways/tweet.gateway';
 
 const app: express.Application = express();
 
@@ -9,7 +10,15 @@ app.get('/', function (req, res) {
 });
 
 app.listen(3000, function () {
-  _setUp();
+  /*
+    TODO: docker compose starts the application container and, after that, the mongo container.
+    Due to the fact that the setUp function gets executed before the mongodb container starts, it tries
+    to connect to an empty container. Fix this and avoid the use of setTimeout function
+  */
+  setTimeout(() => {
+    console.log('now');
+    _setUp();
+  }, 20000);
 });
 
 var Twitter = require('twitter');
@@ -46,6 +55,8 @@ function _setUp() {
       }
     });
     console.log('pending tweets ', pendingTweets);
+    let tg = new TweetGateway();
+    tg.savePendingTweets(pendingTweets);
   });
 }
 
