@@ -10,15 +10,7 @@ app.get('/', function (req, res) {
 });
 
 app.listen(3000, function () {
-  /*
-    TODO: docker compose starts the application container and, after that, the mongo container.
-    Due to the fact that the setUp function gets executed before the mongodb container starts, it tries
-    to connect to an empty container. Fix this and avoid the use of setTimeout function
-  */
-  setTimeout(() => {
-    console.log('now');
-    _setUp();
-  }, 20000);
+  _setUp();
 });
 
 var Twitter = require('twitter');
@@ -34,7 +26,7 @@ var client = new Twitter({
   This function will be used for setting up the different jobs we need to do.
   For now we will leave it like this
 */
-function _setUp() {
+function _setUp(): void {
   client.get('/statuses/mentions_timeline.json', function(error: any, response: any) {
     if(error) throw error;
     console.log(response);  // Raw response object.

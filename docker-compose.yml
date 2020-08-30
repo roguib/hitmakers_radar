@@ -1,6 +1,13 @@
 version: '3'
 
 services:
+  mongo:
+    container_name: mongo_db
+    image: mongo
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "27017:27017"
   hitmakers_radar:
     build: .
     volumes:
@@ -12,10 +19,3 @@ services:
       - 3000:3000
       - 9229:9229
     command: npm start
-  mongo:
-    container_name: mongo_db
-    image: mongo
-    volumes:
-      - ./data:/data/db
-    ports:
-      - "27017:27017"
