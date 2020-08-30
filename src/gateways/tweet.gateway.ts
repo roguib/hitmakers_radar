@@ -1,14 +1,16 @@
 import { Mention } from '../interface/mention.interface';
 import mongo = require('mongodb');
 let MongoClient = mongo.MongoClient;
+import { BaseGateway } from './base.gateway';
 
 // TODO: Try to use the base gateway class for connecting into the db
-export class TweetGateway {
+export class TweetGateway extends BaseGateway {
     constructor() {
+        super();
     }
 
     public async savePendingTweets(mentions: Array<Mention>) {
-        const c = new MongoClient('mongodb://mongo:27017');
+        const c = this.mongoClient();
         try {
             await c.connect();
             let processedTweets: Array<any> = await c.db('hitmakers_radar').collection('pending_tweets').aggregate([
@@ -49,7 +51,7 @@ export class TweetGateway {
                     });
                 } else console.log('mention already on the db', mentions[i]);
             }
-            await c.close();
+            await this.close();
         } catch (e) {
             console.error(e);
         }
