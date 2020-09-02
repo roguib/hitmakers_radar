@@ -63,9 +63,10 @@ async function _setUp() {
     let recomendedSongsForUsers: Array<any> = [];
     for (let i = 0; i < pTweets.length; ++i) {
       let aux: Array<number> = await tg.retrieveRecomendedSongsIdByUserId(pTweets[i].userId);
+      let song: any = await tg.retrieveSongRecomendation(aux);
       recomendedSongsForUsers.push({
         userId: pTweets[i].userId,
-        recomendedSongsId: aux
+        songRecomendation: song
       });
     }
     console.log('recomended songs for every user: ', recomendedSongsForUsers);

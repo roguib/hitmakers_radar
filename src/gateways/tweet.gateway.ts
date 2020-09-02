@@ -3,6 +3,7 @@ import mongo = require('mongodb');
 let MongoClient = mongo.MongoClient;
 import { BaseGateway } from './base.gateway';
 import { PendingTweets } from '../interface/pendingTweets.interface';
+import { response } from 'express';
 
 // TODO: Try to use the base gateway class for connecting into the db
 export class TweetGateway extends BaseGateway {
@@ -98,6 +99,26 @@ export class TweetGateway extends BaseGateway {
                 res.push(document.recomended_songs[i]._id);
             }
             console.log('document: ', document);
+            await this.close();
+            return res;
+        } catch (e) {
+            console.error(e);
+        }
+        return res;
+    }
+
+    public async retrieveSongRecomendation(songsAlreadyRecommended: Array<number>): Promise<Array<any>> {
+        const c = this.mongoClient();
+        let res: any;
+        try {
+            await this.connect();
+            console.log('searching for a song that is not: ', songsAlreadyRecommended);
+            let document: any = await c.db('hitmakers_radar')
+                .collection('songs')
+                .findOne( { _id: { $nin: songsAlreadyRecommended } } );
+            // document always is an array so we need to check if it contains at least one elem
+            console.log('document: ', document);
+            res = document;
             await this.close();
             return res;
         } catch (e) {
