@@ -17,7 +17,7 @@ app.listen(3000, function () {
   */
   setTimeout(() => {
     _setUp();
-  }, 20000);
+  }, 40000);
 });
 
 var Twitter = require('twitter');
@@ -59,6 +59,16 @@ async function _setUp() {
     console.log('retrieving pending tweets to be replyed by the bot');
     let pTweets: Array<PendingTweets> = await tg.retrievePendingTweets();
     console.log('pending tweets retrieved in setup func', pTweets);
+    console.log('retrieving recomended songs for every pending user');
+    let recomendedSongsForUsers: Array<any> = [];
+    for (let i = 0; i < pTweets.length; ++i) {
+      let aux: Array<number> = await tg.retrieveRecomendedSongsIdByUserId(pTweets[i].userId);
+      recomendedSongsForUsers.push({
+        userId: pTweets[i].userId,
+        recomendedSongsId: aux
+      });
+    }
+    console.log('recomended songs for every user: ', recomendedSongsForUsers);
   });
 }
 

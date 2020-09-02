@@ -71,10 +71,35 @@ export class TweetGateway extends BaseGateway {
             for (let i = 0; i < queryResArray.length; ++i) {
                 res.push({
                     screen_name: queryResArray[i].user.screen_name,
-                    in_reply_to_status_id: queryResArray[i]._id
+                    in_reply_to_status_id: queryResArray[i]._id,
+                    userId: queryResArray[i].user.id
                 });
             }
             await this.close();
+        } catch (e) {
+            console.error(e);
+        }
+        return res;
+    }
+
+    // TODO: Move this to another gateway
+    public async retrieveRecomendedSongsIdByUserId(userId: number): Promise<Array<number>> {
+        // const c = new MongoClient('mongodb://mongo:27017');
+        const c = this.mongoClient();
+        let res: Array<number> = [];
+        try {
+            await this.connect();
+            console.log('searching for user with id: ', userId);
+            let document: any = await c.db('hitmakers_radar')
+                .collection('users')
+                .findOne( { _id: userId } );
+            // document always is an array so we need to check if it contains at least one elem
+            for (let i = 0; i < document?.recomended_songs?.length; ++i) {
+                res.push(document.recomended_songs[i]._id);
+            }
+            console.log('document: ', document);
+            await this.close();
+            return res;
         } catch (e) {
             console.error(e);
         }
