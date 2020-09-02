@@ -36,8 +36,8 @@ var client = new Twitter({
 async function _setUp() {
   client.get('/statuses/mentions_timeline.json', async function(error: any, response: any) {
     if(error) throw error;
-    console.log(response);  // Raw response object.
-    console.log(initInterface(response)); // interface
+    //console.log(response);  // Raw response object.
+    //console.log(initInterface(response)); // interface
     let pendingTweets: Array<Mention> = [];
     let mentions: Array<Mention> = initInterface(response);
     // TODO: Make this code more efficient
@@ -64,6 +64,7 @@ async function _setUp() {
     for (let i = 0; i < pTweets.length; ++i) {
       let aux: Array<number> = await tg.retrieveRecomendedSongsIdByUserId(pTweets[i].userId);
       let song: any = await tg.retrieveSongRecomendation(aux);
+      await tg.markSongAsRecommended(pTweets[i].userId, song._id);
       recomendedSongsForUsers.push({
         userId: pTweets[i].userId,
         songRecomendation: song

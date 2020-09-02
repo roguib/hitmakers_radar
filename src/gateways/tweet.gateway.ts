@@ -95,10 +95,8 @@ export class TweetGateway extends BaseGateway {
                 .collection('users')
                 .findOne( { _id: userId } );
             // document always is an array so we need to check if it contains at least one elem
-            for (let i = 0; i < document?.recomended_songs?.length; ++i) {
-                res.push(document.recomended_songs[i]._id);
-            }
-            console.log('document: ', document);
+            res = document?.recommended_songs;
+            console.log('already recommended: ', res);
             await this.close();
             return res;
         } catch (e) {
@@ -125,5 +123,22 @@ export class TweetGateway extends BaseGateway {
             console.error(e);
         }
         return res;
+    }
+
+    public async markSongAsRecommended(userId: number, songId: any) {
+        const c = this.mongoClient();
+        try {
+            await this.connect();
+            let document: any = await c.db('hitmakers_radar')
+                .collection('users')
+                .updateOne( 
+                    { _id: userId },
+                    { $push: { recommended_songs: songId } } );
+            // document always is an array so we need to check if it contains at least one elem
+            console.log('document: ', document.result);
+            await this.close();
+        } catch (e) {
+            console.error(e);
+        }
     }
 }
