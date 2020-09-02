@@ -2,6 +2,7 @@ import { Mention } from '../interface/mention.interface';
 import mongo = require('mongodb');
 let MongoClient = mongo.MongoClient;
 import { BaseGateway } from './base.gateway';
+import { PendingTweets } from '../interface/pendingTweets.interface';
 
 // TODO: Try to use the base gateway class for connecting into the db
 export class TweetGateway extends BaseGateway {
@@ -12,7 +13,7 @@ export class TweetGateway extends BaseGateway {
     public async savePendingTweets(mentions: Array<Mention>) {
         const c = this.mongoClient();
         try {
-            await c.connect();
+            await this.connect();
             let processedTweets: Array<any> = await c.db('hitmakers_radar').collection('pending_tweets').aggregate([
                 {
                     $lookup: {
@@ -55,5 +56,28 @@ export class TweetGateway extends BaseGateway {
         } catch (e) {
             console.error(e);
         }
+    }
+
+    public async retrievePendingTweets(): Promise<Array<PendingTweets>> {
+        // const c = new MongoClient('mongodb://mongo:27017');
+        const c = this.mongoClient();
+        let res: Array<PendingTweets> = [];
+        try {
+            await this.connect();
+            let queryResArray: Array<Mention> = await c.db('hitmakers_radar')
+                .collection('pending_tweets')
+                .find()
+                .toArray();
+            for (let i = 0; i < queryResArray.length; ++i) {
+                res.push({
+                    screen_name: queryResArray[i].user.screen_name,
+                    in_reply_to_status_id: queryResArray[i]._id
+                });
+            }
+            await this.close();
+        } catch (e) {
+            console.error(e);
+        }
+        return res;
     }
 }

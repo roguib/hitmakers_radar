@@ -2,6 +2,7 @@ import express = require('express');
 import { CONFIG_OPTIONS } from './config/environment.config';
 import { Mention } from './interface/mention.interface';
 import { TweetGateway } from './gateways/tweet.gateway';
+import { PendingTweets } from './interface/pendingTweets.interface';
 
 const app: express.Application = express();
 
@@ -10,7 +11,13 @@ app.get('/', function (req, res) {
 });
 
 app.listen(3000, function () {
-  _setUp();
+  /*
+    The mongo container starts listening after setup function gets executed so the mongoclient
+    returns undefined
+  */
+  setTimeout(() => {
+    _setUp();
+  }, 20000);
 });
 
 var Twitter = require('twitter');
@@ -26,8 +33,8 @@ var client = new Twitter({
   This function will be used for setting up the different jobs we need to do.
   For now we will leave it like this
 */
-function _setUp(): void {
-  client.get('/statuses/mentions_timeline.json', function(error: any, response: any) {
+async function _setUp() {
+  client.get('/statuses/mentions_timeline.json', async function(error: any, response: any) {
     if(error) throw error;
     console.log(response);  // Raw response object.
     console.log(initInterface(response)); // interface
@@ -48,7 +55,10 @@ function _setUp(): void {
     });
     console.log('pending tweets ', pendingTweets);
     let tg = new TweetGateway();
-    tg.savePendingTweets(pendingTweets);
+    await tg.savePendingTweets(pendingTweets);
+    console.log('retrieving pending tweets to be replyed by the bot');
+    let pTweets: Array<PendingTweets> = await tg.retrievePendingTweets();
+    console.log('pending tweets retrieved in setup func', pTweets);
   });
 }
 
@@ -58,6 +68,7 @@ function initInterface(response: any): Array<Mention> {
     res.push({
       created_at: mention.created_at,
       id: mention.id,
+      _id: undefined,
       text: mention.text,
       in_reply_to_status_id: mention.in_reply_to_status_id,
       in_reply_to_screen_name: mention.in_reply_to_screen_name,
