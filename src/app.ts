@@ -41,19 +41,13 @@ async function _setUp() {
     let pendingTweets: Array<Mention> = [];
     let mentions: Array<Mention> = initInterface(response);
     // TODO: Make this code more efficient
+    console.log('mentions: ', mentions);
     mentions.forEach(mention => {
-      if (mention.in_reply_to_user_id == null) { // candidate mention
-        let hasResponseFromBot: boolean = false;
-        for (let i = 0; i < mentions.length; ++i) {
-          if (mention.id !== mentions[i].id && mention.in_reply_to_status_id === mentions[i].id && mention.user.screen_name === 'hitmakers_radar') {
-            hasResponseFromBot = true;
-            break;
-          }
-        }
-        if (!hasResponseFromBot) pendingTweets.push(mention); // we should save pendingTweets on the db
+      if (mention.in_reply_to_status_id == null) { // candidate mention to be processed by the bot
+        pendingTweets.push(mention);
       }
     });
-    console.log('pending tweets ', pendingTweets);
+    console.log('candidate pending tweets ', pendingTweets);
     let tg = new TweetGateway();
     await tg.savePendingTweets(pendingTweets);
     console.log('retrieving pending tweets to be replyed by the bot');
@@ -67,13 +61,24 @@ async function _setUp() {
       let song: any = await tg.retrieveSongRecomendation(aux);
       await tg.markSongAsRecommended(pTweets[i].userId, song._id);
       recomendedSongsForUsers.push({
-        in_reply_to_status_id: pTweets[i].in_reply_to_status_id,
+        in_reply_to_status_id: pTweets[i].in_reply_to_status_id?.toString(),
         userId: pTweets[i].userId,
         songRecomendation: song
       });
       await tg.markTweetAsProcessed(pTweets[i]);
+      
+      console.log('responding processed tweet');
+      try {
+        const status = `Here is a song for you @${pTweets[i].screen_name}: ${song.song} - ${song.artist}`;
+        const in_reply_to_status_id = pTweets[i].in_reply_to_status_id?.toString(); // has to be a string, not a number. Should we update the models and work only with string id??
+        await client.post('statuses/update', {
+          status: status,
+          in_reply_to_status_id: in_reply_to_status_id
+        });
+      } catch (e) {
+        console.error(e);
+      }
     }
-    console.log('recomended songs for every user: ', recomendedSongsForUsers);
   });
 }
 

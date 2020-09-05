@@ -15,28 +15,13 @@ export class TweetGateway extends BaseGateway {
         const c = this.mongoClient();
         try {
             await this.connect();
-            let processedTweets: Array<any> = await c.db('hitmakers_radar').collection('pending_tweets').aggregate([
-                {
-                    $lookup: {
-                        from: 'responded_tweets',
-                        localField: '_id',
-                        foreignField: '_id',
-                        as: 'processed_tweets'
-                    }
-                }
-            ]).toArray();
-            console.log('tweets have already been processed: ', processedTweets);
-            // TODO: Make this algorithm more efficient
             for (let i = 0; i < mentions.length; ++i) {
-                let f: boolean = false;
-                for (let j = 0; j < processedTweets.length; ++j) {
-                    if (mentions[i].id == processedTweets[j]._id) {
-                        console.log('mention is present on the db:', mentions[i]);
-                        f = true;
-                        break;
-                    }
-                }
-                if (!f) {
+                console.log('searching for mention: ', mentions[i].id);
+                let doc: any = await c.db('hitmakers_radar')
+                    .collection('processed_tweets')
+                    .findOne( { _id: mentions[i].id } );
+                console.log('document: ', doc);
+                if (!doc) {
                     console.log('mention is not present on the db:', mentions[i]);
                     await c.db('hitmakers_radar').collection('pending_tweets').insertOne({
                         _id: mentions[i].id,
@@ -154,7 +139,7 @@ export class TweetGateway extends BaseGateway {
                 .deleteOne( { _id: pTweets.in_reply_to_status_id } );
             await c.db('hitmakers_radar')
                 .collection('processed_tweets')
-                .insert({
+                .insertOne({
                     _id: pTweets.in_reply_to_status_id,
                     userId: pTweets.userId
                 });
