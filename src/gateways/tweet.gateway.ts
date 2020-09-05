@@ -129,14 +129,35 @@ export class TweetGateway extends BaseGateway {
         const c = this.mongoClient();
         try {
             await this.connect();
+            console.log(`marking the song ${songId} as recomended for the user ${userId}`);
             let document: any = await c.db('hitmakers_radar')
                 .collection('users')
                 .updateOne( 
                     { _id: userId },
-                    { $push: { recommended_songs: songId } } );
+                    { $push: { recommended_songs: songId } },
+                    { upsert: true } 
+                );
             // document always is an array so we need to check if it contains at least one elem
             console.log('document: ', document.result);
             await this.close();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    public async markTweetAsProcessed(pTweets: PendingTweets) {
+        const c = this.mongoClient();
+        try {
+            await this.connect();
+            await c.db('hitmakers_radar')
+                .collection('pending_tweets')
+                .deleteOne( { _id: pTweets.in_reply_to_status_id } );
+            await c.db('hitmakers_radar')
+                .collection('processed_tweets')
+                .insert({
+                    _id: pTweets.in_reply_to_status_id,
+                    userId: pTweets.userId
+                });
         } catch (e) {
             console.error(e);
         }

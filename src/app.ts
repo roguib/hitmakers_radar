@@ -63,12 +63,15 @@ async function _setUp() {
     let recomendedSongsForUsers: Array<any> = [];
     for (let i = 0; i < pTweets.length; ++i) {
       let aux: Array<number> = await tg.retrieveRecomendedSongsIdByUserId(pTweets[i].userId);
+      if (aux == undefined) aux = []; // case when retrieveRecomendedSongsIdByUserId returns empty
       let song: any = await tg.retrieveSongRecomendation(aux);
       await tg.markSongAsRecommended(pTweets[i].userId, song._id);
       recomendedSongsForUsers.push({
+        in_reply_to_status_id: pTweets[i].in_reply_to_status_id,
         userId: pTweets[i].userId,
         songRecomendation: song
       });
+      await tg.markTweetAsProcessed(pTweets[i]);
     }
     console.log('recomended songs for every user: ', recomendedSongsForUsers);
   });
