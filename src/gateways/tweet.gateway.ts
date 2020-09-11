@@ -3,9 +3,7 @@ import mongo = require('mongodb');
 let MongoClient = mongo.MongoClient;
 import { BaseGateway } from './base.gateway';
 import { PendingTweets } from '../interface/pendingTweets.interface';
-import { response } from 'express';
 
-// TODO: Try to use the base gateway class for connecting into the db
 export class TweetGateway extends BaseGateway {
     constructor() {
         super();
@@ -57,7 +55,7 @@ export class TweetGateway extends BaseGateway {
             for (let i = 0; i < queryResArray.length; ++i) {
                 res.push({
                     screen_name: queryResArray[i].user.screen_name,
-                    in_reply_to_status_id: (queryResArray[i]._id ? queryResArray[i]._id : 0),
+                    in_reply_to_status_id: (queryResArray[i]._id ? queryResArray[i]._id : '0'),
                     userId: queryResArray[i].user.id
                 });
             }
@@ -69,7 +67,7 @@ export class TweetGateway extends BaseGateway {
     }
 
     // TODO: Move this to another gateway
-    public async retrieveRecomendedSongsIdByUserId(userId: number): Promise<Array<number>> {
+    public async retrieveRecomendedSongsIdByUserId(userId: string): Promise<Array<number>> {
         // const c = new MongoClient('mongodb://mongo:27017');
         const c = this.mongoClient();
         let res: Array<number> = [];
@@ -112,7 +110,7 @@ export class TweetGateway extends BaseGateway {
     }
 
     // TODO: Move this to another gateway
-    public async markSongAsRecommended(userId: number, songId: any) {
+    public async markSongAsRecommended(userId: string, songId: any) {
         const c = this.mongoClient();
         try {
             await this.connect();

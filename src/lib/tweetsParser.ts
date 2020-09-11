@@ -1,3 +1,6 @@
+// TODO: Replace this outdated lib for twitter-lite. Source: https://github.com/draftbit/twitter-lite
+// twitter package presents several problems: it rounds id of tweets if using number variables,
+// and also doesn't support auto_populate_reply_metadata in status/update
 var Twitter = require('twitter');
 import { CONFIG_OPTIONS } from '../config/environment.config';
 import { Mention } from '../interface/mention.interface';
@@ -79,14 +82,14 @@ export class TweetParser {
     response.forEach((mention: any) => {
       res.push({
         created_at: mention.created_at,
-        id: mention.id,
+        id: mention.id_str,
         _id: undefined,
         text: mention.text,
-        in_reply_to_status_id: mention.in_reply_to_status_id,
-        in_reply_to_screen_name: mention.in_reply_to_screen_name,
-        in_reply_to_user_id: mention.in_reply_to_user_id,
+        in_reply_to_status_id: mention.in_reply_to_status_id_str,
+        in_reply_to_screen_name: mention.in_reply_to_screen_name_str,
+        in_reply_to_user_id: mention.in_reply_to_user_id_str,
         user: {
-          id: mention.user.id,
+          id: mention.user.id_str,
           name: mention.user.name,
           screen_name: mention.user.screen_name
         }
@@ -99,11 +102,14 @@ export class TweetParser {
     console.log('responding processed tweet');
     try {
       const status = `Here is a song for you @${screenName}: ${songName} - ${songArtist}`;
+      console.log(`necessary data for replying: ${screenName} ${songName} ${songArtist} ${inReplyToStatusId}`)
       this.client.post('statuses/update', {
         status: status,
-        in_reply_to_status_id: inReplyToStatusId
+        in_reply_to_status_id: inReplyToStatusId,
+        username: "rgrgib"
       });
     } catch (e) {
+      console.log('error');
       console.error(e);
     }
   }

@@ -1,6 +1,6 @@
 // TODO: Remove camel case names
 export interface User {
-    id: number;
+    id: string;
     name: string;
     screen_name: string;
 }
