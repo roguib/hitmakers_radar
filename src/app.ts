@@ -1,7 +1,4 @@
 import express = require('express');
-import { Mention } from './interface/mention.interface';
-import { TweetGateway } from './gateways/tweet.gateway';
-import { PendingTweets } from './interface/pendingTweets.interface';
 import { TweetParser } from './lib/tweetsParser';
 
 const app: express.Application = express();
@@ -12,8 +9,8 @@ app.get('/', function (req, res) {
 
 app.listen(3000, function () {
   /*
-    The mongo container starts listening after setup function gets executed so the mongoclient
-    returns undefined
+    We make sure the mongo container has enough time to start listening to connections
+    before executing this script
   */
   setTimeout(() => {
     _setUp();
@@ -21,10 +18,12 @@ app.listen(3000, function () {
 });
 
 /*
-  This function will be used for setting up the different jobs we need to do.
-  For now we will leave it like this
+  This function will be used for setting up a setInterval for the job.
+  Warning: Don't set to 0 or otherwise it will execute till the infinity
 */
 async function _setUp() {
   let tweetsParser: TweetParser = new TweetParser();
-  await tweetsParser.processMentions();
+  setInterval(async () => {
+    await tweetsParser.processMentions();
+  }, 15 * 60 * 1000); // 15 mins
 }
