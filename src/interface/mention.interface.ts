@@ -4,7 +4,7 @@ import { User } from "./user.interface";
 export interface Mention {
     created_at: string;
     id: number;
-    _id: number | undefined; // TODO: make it opt
+    _id?: number; // TODO: make it opt
     text: string;
     in_reply_to_status_id: number;
     in_reply_to_user_id: number;

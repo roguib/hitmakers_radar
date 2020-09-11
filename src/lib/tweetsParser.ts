@@ -50,18 +50,9 @@ export class TweetParser {
           songRecomendation: song
         });
         await tg.markTweetAsProcessed(pTweets[i]);
-        
-        console.log('responding processed tweet');
-        try {
-          const status = `Here is a song for you @${pTweets[i].screen_name}: ${song.song} - ${song.artist}`;
-          const in_reply_to_status_id = pTweets[i].in_reply_to_status_id?.toString(); // has to be a string, not a number. Should we update the models and work only with string id??
-          await this.client.post('statuses/update', {
-            status: status,
-            in_reply_to_status_id: in_reply_to_status_id
-          });
-        } catch (e) {
-          console.error(e);
-        }
+        const inReplyToStatusId: string | undefined = pTweets[i].in_reply_to_status_id?.toString();
+        if (inReplyToStatusId) this.commentPendingMentions(pTweets[i].screen_name, song.song, song.artist, inReplyToStatusId);
+        else console.log(`in_reply_to_status_id is undefined. Unable to send a response`);
       }
     });
   }
@@ -85,5 +76,18 @@ export class TweetParser {
       });
     });
     return res;
+  }
+
+  private commentPendingMentions(screenName: string, songName: string, songArtist: string, inReplyToStatusId: string): void {
+    console.log('responding processed tweet');
+    try {
+      const status = `Here is a song for you @${screenName}: ${songName} - ${songArtist}`;
+      this.client.post('statuses/update', {
+        status: status,
+        in_reply_to_status_id: inReplyToStatusId
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 }

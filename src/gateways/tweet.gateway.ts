@@ -57,7 +57,7 @@ export class TweetGateway extends BaseGateway {
             for (let i = 0; i < queryResArray.length; ++i) {
                 res.push({
                     screen_name: queryResArray[i].user.screen_name,
-                    in_reply_to_status_id: queryResArray[i]._id,
+                    in_reply_to_status_id: (queryResArray[i]._id ? queryResArray[i]._id : 0),
                     userId: queryResArray[i].user.id
                 });
             }
