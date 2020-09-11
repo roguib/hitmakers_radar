@@ -1,4 +1,5 @@
-export interface PendingTweets { //change name convention
+// TODO: Remove camel case names
+export interface PendingTweets {
     screen_name: string;
     in_reply_to_status_id: number | undefined;
     userId: number;

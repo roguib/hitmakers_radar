@@ -90,6 +90,7 @@ export class TweetGateway extends BaseGateway {
         return res;
     }
 
+    // TODO: Move this to another gateway
     public async retrieveSongRecomendation(songsAlreadyRecommended: Array<number>): Promise<Array<any>> {
         const c = this.mongoClient();
         let res: any;
@@ -110,6 +111,7 @@ export class TweetGateway extends BaseGateway {
         return res;
     }
 
+    // TODO: Move this to another gateway
     public async markSongAsRecommended(userId: number, songId: any) {
         const c = this.mongoClient();
         try {
