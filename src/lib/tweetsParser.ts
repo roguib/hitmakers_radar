@@ -16,8 +16,19 @@ export class TweetParser {
   constructor() {
   }
 
-  public retrieveTwitterMentions(): void {
-    this.client.get('/statuses/mentions_timeline.json', async (error: any, response: any) => {
+  public async processMentions() {
+    console.log('BEGIN EXEC RETRIEVE TWITTER MENTIONS FUNC');
+    await this.retrieveTwitterMentions(async () => {
+      console.log('INSIDE CALLBACK RETRIEVE TWITTER MENTIONS FUNC');
+      console.log('BEGIN EXEC REPLY TO PENDING MENTIONS FUNC');
+      await this.replyToPendingMentions();
+      console.log('END EXEC REPLY TO PENDING MENTIONS FUNC');
+    });
+    console.log('END EXEC RETRIEVE TWITTER MENTIONS FUNC');
+  }
+
+  private async retrieveTwitterMentions(callback: CallableFunction) {
+    await this.client.get('/statuses/mentions_timeline.json', async (error: any, response: any) => {
       if(error) throw error;
       //console.log(response);  // Raw response object.
       //console.log(initInterface(response)); // interface
@@ -34,31 +45,37 @@ export class TweetParser {
       console.log('candidate pending tweets ', pendingTweets);
       let tg = new TweetGateway();
       await tg.savePendingTweets(pendingTweets);
-      console.log('retrieving pending tweets to be replyed by the bot');
-      let pTweets: Array<PendingTweets> = await tg.retrievePendingTweets();
-      console.log('pending tweets retrieved in setup func', pTweets);
-      console.log('retrieving recomended songs for every pending user');
-      let recomendedSongsForUsers: Array<any> = [];
-      for (let i = 0; i < pTweets.length; ++i) {
-        let aux: Array<number> = await tg.retrieveRecomendedSongsIdByUserId(pTweets[i].userId);
-        if (aux == undefined) aux = []; // case when retrieveRecomendedSongsIdByUserId returns empty
-        let song: any = await tg.retrieveSongRecomendation(aux);
-        await tg.markSongAsRecommended(pTweets[i].userId, song._id);
-        recomendedSongsForUsers.push({
-          in_reply_to_status_id: pTweets[i].in_reply_to_status_id?.toString(),
-          userId: pTweets[i].userId,
-          songRecomendation: song
-        });
-        await tg.markTweetAsProcessed(pTweets[i]);
-        const inReplyToStatusId: string | undefined = pTweets[i].in_reply_to_status_id?.toString();
-        if (inReplyToStatusId) this.commentPendingMentions(pTweets[i].screen_name, song.song, song.artist, inReplyToStatusId);
-        else console.log(`in_reply_to_status_id is undefined. Unable to send a response`);
-      }
+      callback(true);
     });
+  }
+
+  private async replyToPendingMentions() {
+    let tg = new TweetGateway();
+    console.log('retrieving pending tweets to be replyed by the bot');
+    let pTweets: Array<PendingTweets> = await tg.retrievePendingTweets();
+    console.log('pending tweets retrieved in setup func', pTweets);
+    console.log('retrieving recomended songs for every pending user');
+    let recomendedSongsForUsers: Array<any> = [];
+    for (let i = 0; i < pTweets.length; ++i) {
+      let aux: Array<number> = await tg.retrieveRecomendedSongsIdByUserId(pTweets[i].userId);
+      if (aux == undefined) aux = []; // case when retrieveRecomendedSongsIdByUserId returns empty
+      let song: any = await tg.retrieveSongRecomendation(aux);
+      await tg.markSongAsRecommended(pTweets[i].userId, song._id);
+      recomendedSongsForUsers.push({
+        in_reply_to_status_id: pTweets[i].in_reply_to_status_id?.toString(),
+        userId: pTweets[i].userId,
+        songRecomendation: song
+      });
+      await tg.markTweetAsProcessed(pTweets[i]);
+      const inReplyToStatusId: string | undefined = pTweets[i].in_reply_to_status_id?.toString();
+      if (inReplyToStatusId) this.commentPendingMentions(pTweets[i].screen_name, song.song, song.artist, inReplyToStatusId);
+      else console.log(`in_reply_to_status_id is undefined. Unable to send a response`);
+    }
   }
 
   private initInterface(response: any): Array<Mention> {
     let res: Array<Mention> = [];
+    // TODO: Replace forEach with for
     response.forEach((mention: any) => {
       res.push({
         created_at: mention.created_at,
@@ -69,9 +86,9 @@ export class TweetParser {
         in_reply_to_screen_name: mention.in_reply_to_screen_name,
         in_reply_to_user_id: mention.in_reply_to_user_id,
         user: {
-            id: mention.user.id,
-            name: mention.user.name,
-            screen_name: mention.user.screen_name
+          id: mention.user.id,
+          name: mention.user.name,
+          screen_name: mention.user.screen_name
         }
       });
     });

@@ -26,5 +26,5 @@ app.listen(3000, function () {
 */
 async function _setUp() {
   let tweetsParser: TweetParser = new TweetParser();
-  tweetsParser.retrieveTwitterMentions();
+  await tweetsParser.processMentions();
 }
