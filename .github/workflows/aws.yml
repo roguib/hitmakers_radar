@@ -76,6 +76,6 @@ on:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: sample-app-service
-          cluster: default
+          service: nginx-service          
+          cluster: hitmakers-radar-cluster
           wait-for-service-stability: true
