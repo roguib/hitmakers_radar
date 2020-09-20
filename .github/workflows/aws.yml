@@ -74,6 +74,6 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: nginx-service          
+        service: hitmakers_radar-service
         cluster: hitmakers-radar-cluster
         wait-for-service-stability: true
