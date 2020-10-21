@@ -34,6 +34,6 @@ jobs:
         id: scp-ec2
         env:
           AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
-        run: scp -o StrictHostKeyChecking=no -i ~/.ssh/hitmakers_radar hitmakers_radar.zip ${{ secrets.AWS_EC2_HOST }}:~/app/
+        run: scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa.pem hitmakers_radar.zip ${{ secrets.AWS_EC2_HOST }}:~/app/
 
 
