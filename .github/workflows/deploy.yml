@@ -10,7 +10,7 @@ jobs:
     
     steps:
       - name: Generate zip file
-      id: build-image
-      run: |
-        apt-get install zip unzip
-        zip -r hitmakers_radar.zip . -x "data/*" "node_modules/*" "build/*" ".git/*"
+        id: build-image
+        run: |
+          apt-get install zip unzip
+          zip -r hitmakers_radar.zip . -x "data/*" "node_modules/*" "build/*" ".git/*"
