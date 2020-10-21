@@ -28,7 +28,6 @@ jobs:
           mkdir -p ~/.ssh/
           echo "${{ secrets.AWS_SECRET_ACCESS_KEY }}" > ~/.ssh/id_rsa.pem
           chmod 700 ~/.ssh/id_rsa.pem
-          ssh-keyscan -H ${{ secrets.AWS_EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Copy zip file into EC2
         id: scp-ec2
