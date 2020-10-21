@@ -30,10 +30,8 @@ ssh -i $PRIVATE_KEY_PATH $EC2_INSTANCE unzip -u -o /home/ec2-user/app/hitmakers_
 echo 'Removing zip'
 ssh -i $PRIVATE_KEY_PATH $EC2_INSTANCE rm -rf /home/ec2-user/app/hitmakers_radar.zip
 
-# 1. scp generated zip file into /app
-# 2. unzip hitmakers_radar with -u option (update files, create if necessary)
-# 3. remove zip folder
-# --- Missing: ---
-# 4. docker-compose down
-# 5. sleep
-# 6. docker-compose up
+echo 'Stoping docker compose'
+ssh -i $PRIVATE_KEY_PATH $EC2_INSTANCE docker-compose -f /home/ec2-user/app/docker-compose.yml down
+
+echo 'Starting docker compose'
+ssh -i $PRIVATE_KEY_PATH $EC2_INSTANCE docker-compose -f /home/ec2-user/app/docker-compose.yml up -d
