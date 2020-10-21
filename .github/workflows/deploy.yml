@@ -9,8 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Generate zip file
         id: build-image
         run: |
-          apt-get install zip unzip
+          sudo apt-get update
+          sudo apt-get install zip unzip
           zip -r hitmakers_radar.zip . -x "data/*" "node_modules/*" "build/*" ".git/*"
