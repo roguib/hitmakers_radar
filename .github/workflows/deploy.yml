@@ -18,3 +18,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install zip unzip
           zip -r hitmakers_radar.zip . -x "data/*" "node_modules/*" "build/*" ".git/*"
+      
+      - name: Create pem file
+        id: create-pem
+        env:
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: echo "${{ secrets.AWS_SECRET_ACCESS_KEY }}" > ~/.ssh/hitmakers_radar.pem
+
+      - name: Copy zip file into EC2
+      id: scp-ec2
+      env:
+        AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
+      run: scp -i ~/.ssh/hitmakers_radar.pem hitmakers_radar.zip ${{ secrets.AWS_EC2_HOST }}:~/app/
+
+
