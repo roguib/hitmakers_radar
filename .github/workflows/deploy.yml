@@ -1,15 +1,16 @@
 on:
- push:
-   branches:
-     - master
-
+  push:
+    branches:
+      - master
+      
 jobs:
- deploy:
-   name: Deploy
-   runs-on: ubuntu-latest
-
-   steps:
-    - name: Generate zip file
-        run: |
-            apt-get install zip unzip
-            zip -r hitmakers_radar.zip . -x "data/*" "node_modules/*" "build/*" ".git/*"
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Generate zip file
+      id: build-image
+      run: |
+        apt-get install zip unzip
+        zip -r hitmakers_radar.zip . -x "data/*" "node_modules/*" "build/*" ".git/*"
