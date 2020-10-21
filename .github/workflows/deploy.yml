@@ -26,9 +26,9 @@ jobs:
         run: echo "${{ secrets.AWS_SECRET_ACCESS_KEY }}" > ~/.ssh/hitmakers_radar.pem
 
       - name: Copy zip file into EC2
-      id: scp-ec2
-      env:
-        AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
-      run: scp -i ~/.ssh/hitmakers_radar.pem hitmakers_radar.zip ${{ secrets.AWS_EC2_HOST }}:~/app/
+        id: scp-ec2
+        env:
+          AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
+        run: scp -i ~/.ssh/hitmakers_radar.pem hitmakers_radar.zip ${{ secrets.AWS_EC2_HOST }}:~/app/
 
 
