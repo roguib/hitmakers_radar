@@ -56,6 +56,6 @@ jobs:
         id: compose-up
         env:
           AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
-        run: ssh -i ~/.ssh/id_rsa.pem ${{ secrets.AWS_EC2_HOST }} docker-compose -f /home/ec2-user/app/docker-compose.yml up
+        run: ssh -i ~/.ssh/id_rsa.pem ${{ secrets.AWS_EC2_HOST }} docker-compose -f /home/ec2-user/app/docker-compose.yml up -d
 
 
