@@ -23,7 +23,6 @@ jobs:
         id: create-pem
         env:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
         run: |
           mkdir -p ~/.ssh/
           echo "${{ secrets.AWS_SECRET_ACCESS_KEY }}" > ~/.ssh/id_rsa.pem
@@ -34,5 +33,29 @@ jobs:
         env:
           AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
         run: scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa.pem hitmakers_radar.zip ${{ secrets.AWS_EC2_HOST }}:~/app/
+
+      - name: Extrct zip file
+        id: extract-zip
+        env:
+          AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
+        run: ssh -i ~/.ssh/id_rsa.pem ${{ secrets.AWS_EC2_HOST }} unzip -u -o /home/ec2-user/app/hitmakers_radar.zip -d /home/ec2-user/app/
+      
+      - name: Delete zip file
+        id: delete-zip
+        env:
+          AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
+        run: ssh -i ~/.ssh/id_rsa.pem ${{ secrets.AWS_EC2_HOST }} rm -rf /home/ec2-user/app/hitmakers_radar.zip
+
+      - name: Stoping docker compose
+        id: compose-down
+        env:
+          AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
+        run: ssh -i ~/.ssh/id_rsa.pem ${{ secrets.AWS_EC2_HOST }} docker-compose -f /home/ec2-user/app/docker-compose.yml down
+
+      - name: Starting docker compose
+        id: compose-up
+        env:
+          AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
+        run: ssh -i ~/.ssh/id_rsa.pem ${{ secrets.AWS_EC2_HOST }} docker-compose -f /home/ec2-user/app/docker-compose.yml up
 
 
